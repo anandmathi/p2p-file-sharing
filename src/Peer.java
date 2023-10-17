@@ -1,9 +1,16 @@
 public class Peer {
     // initialize peer data
     private int peerId;
-    // bitfield, ip, etc
+    private String address;
+    private int port;
+    private boolean file;
 
-    public Peer(int peerId) {
+    private byte[] bitField;
+
+    public Peer(int peerId, String address, int port, boolean hasFile) {
         this.peerId = peerId;
+        this.address = address;
+        this.port = port;
+        this.file = hasFile;
     }
 }
