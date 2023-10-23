@@ -7,6 +7,8 @@ import java.util.List;
 public class ConfigParser {
     public static List<Integer> parseCommon(String fileName) {
         List<Integer> cmnCfg = new ArrayList<>();
+        // indices: 0 -> NumberOfPreferredNeighbors, 1 -> UnchokingInterval, 2 -> OptimisticUnchokingInterval,
+        // 3 -> FileName, 4 -> FileSize, 5 -> PieceSize
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(fileName));

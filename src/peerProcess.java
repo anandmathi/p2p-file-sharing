@@ -1,7 +1,9 @@
+import java.io.File;
 import java.util.List;
 
 public class peerProcess {
     public static void main(String[] args) throws Exception {
+
         // input validation: ensure argument is a valid integer & length == 1
         if (args.length != 1) {
             throw new Exception("Error: Invalid input. This program takes in one argument.\nUsage: java peerProcess <peerId>");
@@ -28,6 +30,25 @@ public class peerProcess {
             throw new Exception("Error: Input peerId not found in PeerInfo.cfg.");
         }
 
+        // Clean up environment: delete previous log file and directory if they exist from previous runs
+        File prevLog = new File("log_peer_" + peerId + ".log");
+        File prevDir = new File("peer_" + peerId);
+        if (prevLog.exists()) {
+            prevLog.delete();
+        }
+        if (prevDir.exists()) {
+            deleteDirectory(prevDir);
+        }
+
+        // Manual Log class tests
+//        Log logger = new Log(peerId);
+//        logger.logTCPTo(5555);
+//
+//        logger.logTCPFrom(5555);
+//        logger.logChangeOpUnchoked(2352);
+//        logger.logDownloadPiece(6969, 5, 5);
+
+
         // run Client & Server
         Server server = new Server();
         Thread serverThread = new Thread(server);
@@ -35,7 +56,23 @@ public class peerProcess {
         Client client = new Client(peer, fullPeerList);
         Thread clientThread = new Thread(client);
 
-        serverThread.start();
-        clientThread.start();
+//        serverThread.start();
+//        clientThread.start();
+    }
+
+    public static void deleteDirectory(File directory) {
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        deleteDirectory(file); // Recursively delete subdirectories
+                    } else {
+                        file.delete(); // Delete files
+                    }
+                }
+            }
+        }
+        directory.delete();
     }
 }

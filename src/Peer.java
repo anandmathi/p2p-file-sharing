@@ -10,15 +10,15 @@ public class Peer {
 
     private byte[] bitField;
 
-    List<Peer> peerList = new ArrayList<>();
-    List<Peer> neighborsList = new ArrayList<>();
+    List<Peer> connectedPeersList;
+    List<Peer> neighborsList;
 
-    public Peer(int peerId, String address, int port, boolean file, List<Peer> peerList) {
+    public Peer(int peerId, String address, int port, boolean file, List<Peer> connectedPeersList) {
         this.peerId = peerId;
         this.address = address;
         this.port = port;
         this.file = file;
-        this.peerList = peerList;
+        this.connectedPeersList = connectedPeersList;
     }
 
     public int getPeerId() {
@@ -57,8 +57,8 @@ public class Peer {
         this.file = file;
     }
 
-    public void setPeerList(List<Peer> peerList) {
-        this.peerList = peerList;
+    public void setPeerList(List<Peer> connectedPeersList) {
+        this.connectedPeersList = connectedPeersList;
     }
 
     public void setNeighborsList(List<Peer> neighborsList) {
