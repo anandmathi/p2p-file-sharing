@@ -6,16 +6,24 @@ import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
 
-public class Client {
+public class Client implements Runnable {
     Socket requestSocket;           //socket connect to the server
     ObjectOutputStream out;         //stream write to the socket
     ObjectInputStream in;          //stream read from the socket
     String message;                //message send to the server
     String MESSAGE;                //capitalized message read from the server
 
-    public void Client() {}
+    Peer peer;
+    List<Peer> connectedPeerList;
+    List<Peer> fullPeerList;
 
-    void run()
+    public Client(Peer peer, List<Peer> fullPeerList) {
+        this.peer = peer;
+        this.fullPeerList = fullPeerList;
+    }
+
+    @Override
+    public void run()
     {
         try{
             //create a socket to connect to the server
@@ -76,12 +84,6 @@ public class Client {
         catch(IOException ioException){
             ioException.printStackTrace();
         }
-    }
-    //main method
-    public static void main(String args[])
-    {
-        Client client = new Client();
-        client.run();
     }
 
 }
