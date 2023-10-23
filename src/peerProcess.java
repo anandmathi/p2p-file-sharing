@@ -1,3 +1,14 @@
+/*
+To compile, run the following command in p2p-file-sharing/src:
+javac ChokeHandler.java MessageHandler.java Peer.java Client.java Log.java Server.java peerProcess.java
+
+To run, run the following command in p2p-file-sharing/src:
+java peerProcess <peerId>
+Ex. java peerProcess 1001
+
+peerId must match a peer in p2p-file-sharing/src/config/PeerInfo.cfg
+ */
+
 import java.io.File;
 import java.util.List;
 
@@ -41,12 +52,11 @@ public class peerProcess {
         }
 
         // Manual Log class tests
-//        Log logger = new Log(peerId);
-//        logger.logTCPTo(5555);
-//
-//        logger.logTCPFrom(5555);
-//        logger.logChangeOpUnchoked(2352);
-//        logger.logDownloadPiece(6969, 5, 5);
+        Log logger = new Log(peerId);
+        logger.logTCPTo(5555);
+        logger.logTCPFrom(5555);
+        logger.logChangeOpUnchoked(2352);
+        logger.logDownloadPiece(6969, 5, 5);
 
 
         // run Client & Server
