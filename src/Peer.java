@@ -7,45 +7,58 @@ public class Peer {
     private String address;
     private int port;
     private boolean file;
+    private boolean local; // does this Peer object represent this machine? -- avoid performing unnecessary
+    // operations/threads while using Peer to maintain info for other peers
 
     private byte[] bitField;
     private int numPiecesHas;
 
     // data from Common.cfg
-    private int numPrefNeighbors;
+//    private int numPrefNeighbors;
     private int numPiecesTotal;
-    private int unchokingInterval;
-    private int opUnchokingInterval;
-    private String fileName;
-    private int fileSize;
-    private int pieceSize;
+//    private int unchokingInterval;
+//    private int opUnchokingInterval;
+//    private String fileName;
+//    private int fileSize;
+//    private int pieceSize;
 
     private Log log;
 
     List<Peer> connectedPeersList;
     List<Peer> neighborsList;
 
-    public Peer(int peerId, String address, int port, boolean file, List<Peer> connectedPeersList) {
+    ConfigParser.Common cmnCfg;
+
+    public Peer(int peerId, String address, int port, boolean file, List<Peer> connectedPeersList, boolean local) {
         this.peerId = peerId;
         this.address = address;
         this.port = port;
         this.file = file;
         this.connectedPeersList = connectedPeersList;
         log = new Log(peerId);
-        getCommonInfo();
+        this.local = local;
+        if (local) {
+            getCommonInfo();
+            startThreads();
+        }
+    }
+
+    public void startThreads() {
+        for (int i = 0; i < cmnCfg.getNumberOfPreferredNeighbors(); i++) {
+            Client client = new Client(this, null);
+            Server server = new Server();
+            Thread clientThread = new Thread(client);
+            Thread serverThread = new Thread(server);
+//            clientThread.start();
+//            serverThread.start();
+        }
     }
 
     public void getCommonInfo() {
         // indices: 0 -> NumberOfPreferredNeighbors, 1 -> UnchokingInterval, 2 -> OptimisticUnchokingInterval,
         // 3 -> FileName, 4 -> FileSize, 5 -> PieceSize
-        ConfigParser.CommonConfig cmnCfg = ConfigParser.parseCommon("config/project_config_file_small/Common.cfg");
-        numPrefNeighbors = cmnCfg.getNumberOfPreferredNeighbors();
-        unchokingInterval = cmnCfg.getUnchokingInterval();
-        opUnchokingInterval = cmnCfg.getOptimisticUnchokingInterval();
-        fileName = cmnCfg.getFileName();
-        fileSize = cmnCfg.getFileSize();
-        pieceSize = cmnCfg.getPieceSize();
-        numPiecesTotal = (int)Math.ceil((double) fileSize / pieceSize);
+        cmnCfg = ConfigParser.parseCommon("config/project_config_file_small/Common.cfg");
+        numPiecesTotal = (int)Math.ceil((double) cmnCfg.getFileSize() / cmnCfg.getPieceSize());
     }
 
     public int getPeerId() {
@@ -94,5 +107,13 @@ public class Peer {
 
     public void addNeighbor(Peer neighbor) {
         neighborsList.add(neighbor);
+    }
+
+    public int getNumPiecesTotal() {
+        return numPiecesTotal;
+    }
+
+    public int getNumPiecesHas() {
+        return numPiecesHas;
     }
 }

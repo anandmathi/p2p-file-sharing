@@ -23,6 +23,8 @@ public class Client implements Runnable {
     String message;                //message send to the server
     String MESSAGE;                //capitalized message read from the server
 
+//    private int numPreferredNeighbors;
+
     Peer peer;
     List<Peer> connectedPeerList;
     List<Peer> fullPeerList;

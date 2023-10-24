@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigParser {
-    public static CommonConfig parseCommon(String fileName) {
-        CommonConfig cmnCfg = new CommonConfig();
+    public static Common parseCommon(String fileName) {
+        Common cmnCfg = new Common();
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(fileName));
@@ -72,7 +72,7 @@ public class ConfigParser {
                     int port = Integer.parseInt(parts[2]);
                     int file = Integer.parseInt(parts[3]);
 
-                    Peer peer = new Peer(peerId, address, port, file == 1, null);
+                    Peer peer = new Peer(peerId, address, port, file == 1, null, false);
                     peers.add(peer);
                 }
             }
@@ -86,7 +86,7 @@ public class ConfigParser {
         return peers;
     }
 
-    public static class CommonConfig {
+    public static class Common {
         private int numberOfPreferredNeighbors;
         private int unchokingInterval;
         private int optimisticUnchokingInterval;
