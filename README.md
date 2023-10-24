@@ -11,7 +11,7 @@ Group 35:
 ## Compilation & Running Instructions
 To compile, run the following command in p2p-file-sharing/src:
 
-`javac ChokeHandler.java MessageHandler.java Peer.java Client.java Log.java Server.java peerProcess.java`
+`javac ChokeHandler.java MessageHandler.java Peer.java Client.java Log.java Server.java peerProcess.java Common.java`
 
 To run, run the following command in p2p-file-sharing/src:
 

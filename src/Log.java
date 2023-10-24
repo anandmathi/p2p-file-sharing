@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public class Log {
-    private int peerId;
+    private final int peerId;
     private static final Logger logger = Logger.getLogger(Log.class.getName());
 //    private String address;
 //    private int port;
@@ -81,7 +81,7 @@ public class Log {
 
     public void logDownloadPiece(int peerId2, int pieceIndex, int numPieces) {
         log("Peer " + peerId + " has downloaded the piece " + pieceIndex + " from " + peerId2 + ". Now " +
-                " the number of pieces it has is " + numPieces + ".");
+                "the number of pieces it has is " + numPieces + ".");
     }
 
     public void logCompleteDownload() {

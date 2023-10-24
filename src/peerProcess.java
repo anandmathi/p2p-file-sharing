@@ -9,6 +9,17 @@ Ex. java peerProcess 1001
 peerId must match a peer in p2p-file-sharing/src/config/PeerInfo.cfg
  */
 
+/*
+peerProcess.java
+Entry point for the software – like a “main” file
+Input validation
+Verify environment setup
+Create the peer
+Run the client
+Should be relatively simple for now
+
+ */
+
 import java.io.File;
 import java.util.List;
 
