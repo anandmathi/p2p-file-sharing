@@ -1,3 +1,9 @@
+/*
+ConfigParser.java
+Dissect config files to extract relevant information for current peer
+
+ */
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -5,10 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigParser {
-    public static List<Integer> parseCommon(String fileName) {
-        List<Integer> cmnCfg = new ArrayList<>();
-        // indices: 0 -> NumberOfPreferredNeighbors, 1 -> UnchokingInterval, 2 -> OptimisticUnchokingInterval,
-        // 3 -> FileName, 4 -> FileSize, 5 -> PieceSize
+    public static Common parseCommon(String fileName) {
+        Common cmnCfg = new Common();
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(fileName));
@@ -23,14 +27,26 @@ public class ConfigParser {
                     String property = parts[0];
                     String value = parts[1];
 
-                    // set the appropriate field
+                    // Parse and set the appropriate field
                     switch (property) {
-                        case "NumberOfPreferredNeighbors" -> cmnCfg.set(0, (Integer.parseInt(value)));
-                        case "UnchokingInterval" -> cmnCfg.set(1, (Integer.parseInt(value)));
-                        case "OptimisticUnchokingInterval" -> cmnCfg.set(2, (Integer.parseInt(value)));
-                        case "FileName" -> cmnCfg.set(3, (Integer.parseInt(value)));
-                        case "FileSize" -> cmnCfg.set(4, (Integer.parseInt(value)));
-                        case "PieceSize" -> cmnCfg.set(5, (Integer.parseInt(value)));
+                        case "NumberOfPreferredNeighbors":
+                            cmnCfg.setNumberOfPreferredNeighbors(Integer.parseInt(value));
+                            break;
+                        case "UnchokingInterval":
+                            cmnCfg.setUnchokingInterval(Integer.parseInt(value));
+                            break;
+                        case "OptimisticUnchokingInterval":
+                            cmnCfg.setOptimisticUnchokingInterval(Integer.parseInt(value));
+                            break;
+                        case "FileName":
+                            cmnCfg.setFileName(value);
+                            break;
+                        case "FileSize":
+                            cmnCfg.setFileSize(Integer.parseInt(value));
+                            break;
+                        case "PieceSize":
+                            cmnCfg.setPieceSize(Integer.parseInt(value));
+                            break;
                     }
                 }
             }
@@ -43,7 +59,6 @@ public class ConfigParser {
 
         return cmnCfg;
     }
-
     public static List<Peer> parsePeerInfo(String fileName) {
         List<Peer> peers = new ArrayList<>();
 
@@ -57,7 +72,7 @@ public class ConfigParser {
                     int port = Integer.parseInt(parts[2]);
                     int file = Integer.parseInt(parts[3]);
 
-                    Peer peer = new Peer(peerId, address, port, file == 1, null);
+                    Peer peer = new Peer(peerId, address, port, file == 1, null, false);
                     peers.add(peer);
                 }
             }
@@ -69,5 +84,62 @@ public class ConfigParser {
         // probably not necessary
 
         return peers;
+    }
+
+    public static class Common {
+        private int numberOfPreferredNeighbors;
+        private int unchokingInterval;
+        private int optimisticUnchokingInterval;
+        private String fileName;
+        private int fileSize;
+        private int pieceSize;
+
+        public int getNumberOfPreferredNeighbors() {
+            return numberOfPreferredNeighbors;
+        }
+
+        public int getUnchokingInterval() {
+            return unchokingInterval;
+        }
+
+        public int getOptimisticUnchokingInterval() {
+            return optimisticUnchokingInterval;
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
+
+        public int getFileSize() {
+            return fileSize;
+        }
+
+        public int getPieceSize() {
+            return pieceSize;
+        }
+
+        public void setNumberOfPreferredNeighbors(int num) {
+            numberOfPreferredNeighbors = num;
+        }
+
+        public void setUnchokingInterval(int num) {
+            unchokingInterval = num;
+        }
+
+        public void setOptimisticUnchokingInterval(int num) {
+            optimisticUnchokingInterval = num;
+        }
+
+        public void setFileName(String str) {
+            fileName = str;
+        }
+
+        public void setFileSize(int num) {
+            fileSize = num;
+        }
+
+        public void setPieceSize(int num) {
+            pieceSize = num;
+        }
     }
 }

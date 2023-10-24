@@ -1,5 +1,15 @@
 // Provided resource from Canvas
 
+/*
+Client.java
+Class file for running the actual application
+Create sockets to connect peers
+sendMessage(<params>)
+Close connections properly
+Sample file provided to us
+
+ */
+
 import java.net.*;
 import java.io.*;
 import java.nio.*;
@@ -12,6 +22,8 @@ public class Client implements Runnable {
     ObjectInputStream in;          //stream read from the socket
     String message;                //message send to the server
     String MESSAGE;                //capitalized message read from the server
+
+//    private int numPreferredNeighbors;
 
     Peer peer;
     List<Peer> connectedPeerList;
