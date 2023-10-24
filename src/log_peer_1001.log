@@ -1,0 +1,8 @@
+Oct 24, 2023 11:50:40 AM Log log
+INFO: [2023-10-24 11:50:40]: Peer 1001 makes a connection to Peer 5555.
+Oct 24, 2023 11:50:40 AM Log log
+INFO: [2023-10-24 11:50:40]: Peer 1001 is connected from Peer 5555.
+Oct 24, 2023 11:50:40 AM Log log
+INFO: [2023-10-24 11:50:40]: Peer 1001 has the optimistically unchoked neighbor 2352.
+Oct 24, 2023 11:50:40 AM Log log
+INFO: [2023-10-24 11:50:40]: Peer 1001 has downloaded the piece 5 from 6969. Now the number of pieces it has is 5.

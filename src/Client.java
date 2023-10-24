@@ -1,5 +1,15 @@
 // Provided resource from Canvas
 
+/*
+Client.java
+Class file for running the actual application
+Create sockets to connect peers
+sendMessage(<params>)
+Close connections properly
+Sample file provided to us
+
+ */
+
 import java.net.*;
 import java.io.*;
 import java.nio.*;
