@@ -1,12 +1,24 @@
 # P2P File Sharing
 
+## Overview
 P2P file sharing software built for CNT4007 at the University of Florida.
+
+[Demo Video]()
 
 ## Contributors
 Group 35:
-- Kory Gauger
-- Kyeonghan Lee
-- Anand Mathi
+- Kory Gauger (add email)
+  - Contribution 1
+  - Contribution 2
+  - etc...
+- Kyeonghan Lee (add email)
+  - Contribution 1
+  - Contribution 2
+  - etc...
+- Anand Mathi (anandmathi@ufl.edu)
+  - Contribution 1
+  - Contribution 2
+  - etc...
 
 ## Compilation & Running Instructions
 To compile, run the following command in p2p-file-sharing/src:
