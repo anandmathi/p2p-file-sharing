@@ -7,11 +7,11 @@ P2P file sharing software built for CNT4007 at the University of Florida.
 
 ## Contributors
 Group 35:
-- Kory Gauger (add email)
+- Kory Gauger (kory.gauger@ufl.edu)
   - Contribution 1
   - Contribution 2
   - etc...
-- Kyeonghan Lee (add email)
+- Kyeonghan Lee (klee4@ufl.edu)
   - Contribution 1
   - Contribution 2
   - etc...
