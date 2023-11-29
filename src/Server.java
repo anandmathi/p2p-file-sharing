@@ -1,34 +1,49 @@
-// Provided resource from Canvas
-
 import java.net.*;
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
 
-public class Server implements Runnable {
+public class Server {
 
-    private static final int sPort = 8000;   //The server will be listening on this port number
+    private static int hostPort;   //The server will be listening on this port number
+    private boolean exit = false;
+    private peerProcess proc;
 
-    public static void main(String[] args) throws Exception {
-        System.out.println("The server is running.");
-        ServerSocket listener = new ServerSocket(sPort);
-        int clientNum = 1;
-        try {
-            while(true) {
-                new Handler(listener.accept(),clientNum).start();
-                System.out.println("Client "  + clientNum + " is connected!");
-                clientNum++;
-            }
-        } finally {
-            listener.close();
-        }
-
+    public Server(int port, peerProcess proc) {
+        hostPort = port;
+        exit = false;
+        this.proc = proc;
     }
 
-    @Override
-    public void run() {
+    public void startServer() throws IOException {
+        System.out.println("Accepting connections on port " + hostPort + "...");
+        ServerSocket listener = new ServerSocket(hostPort);
+        listener.setSoTimeout(1000); // Set a timeout for accept()
 
+        int clientNum = 1;
+        try {
+            while(!exit) {
+                try {
+                    Socket clientSocket = listener.accept(); // This can throw SocketTimeoutException
+                    if (clientSocket != null) {
+                        new Handler(clientSocket, clientNum).start();
+                        System.out.println("Client " + clientNum + " is connected!");
+                        clientNum++;
+                    }
+                } catch (SocketTimeoutException ignored) {
+                    // nothing needed here -- just means that no client tried to connect during the timeout
+                }
+            }
+        } finally {
+            System.out.println("Server shutting down...");
+            exit = true;
+            listener.close();
+        }
+    }
+
+    public void stopServer() {
+        exit = true;
     }
 
     /**

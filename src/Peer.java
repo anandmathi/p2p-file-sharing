@@ -1,5 +1,5 @@
-import java.util.ArrayList;
 import java.util.List;
+import java.util.BitSet;
 
 public class Peer {
     // initialize peer data
@@ -7,10 +7,9 @@ public class Peer {
     private String address;
     private int port;
     private boolean file;
-    private boolean local; // does this Peer object represent this machine? -- avoid performing unnecessary
     // operations/threads while using Peer to maintain info for other peers
 
-    private byte[] bitField;
+    private BitSet bitField;
     private int numPiecesHas;
 
     // data from Common.cfg
@@ -29,36 +28,44 @@ public class Peer {
 
     ConfigParser.Common cmnCfg;
 
-    public Peer(int peerId, String address, int port, boolean file, List<Peer> connectedPeersList, boolean local) {
+    public Peer(int peerId, String address, int port, boolean file, List<Peer> connectedPeersList) {
         this.peerId = peerId;
         this.address = address;
         this.port = port;
         this.file = file;
         this.connectedPeersList = connectedPeersList;
         log = new Log(peerId);
-        this.local = local;
-        if (local) {
-            getCommonInfo();
-            startThreads();
-        }
     }
 
     public void startThreads() {
         for (int i = 0; i < cmnCfg.getNumberOfPreferredNeighbors(); i++) {
-            Client client = new Client(this, null);
-            Server server = new Server();
-            Thread clientThread = new Thread(client);
-            Thread serverThread = new Thread(server);
+//            Client client = new Client(this, null);
+//            SampleServer server = new SampleServer();
+//            Thread clientThread = new Thread(client);
+//            Thread serverThread = new Thread(server);
 //            clientThread.start();
 //            serverThread.start();
         }
     }
 
-    public void getCommonInfo() {
+    public void initialize() {
+        loadCommonInfo();
+        // if it has the file, set numPiecesHas and set all bitfield entries to 1
+        if (file) {
+            numPiecesHas = numPiecesTotal;
+            bitField.set(0, numPiecesTotal);
+        } else {
+            numPiecesHas = 0;
+        }
+        startThreads();
+    }
+
+    public void loadCommonInfo() {
         // indices: 0 -> NumberOfPreferredNeighbors, 1 -> UnchokingInterval, 2 -> OptimisticUnchokingInterval,
         // 3 -> FileName, 4 -> FileSize, 5 -> PieceSize
         cmnCfg = ConfigParser.parseCommon("config/project_config_file_small/Common.cfg");
         numPiecesTotal = (int)Math.ceil((double) cmnCfg.getFileSize() / cmnCfg.getPieceSize());
+        this.bitField = new BitSet(numPiecesTotal);
     }
 
     public int getPeerId() {
@@ -115,5 +122,13 @@ public class Peer {
 
     public int getNumPiecesHas() {
         return numPiecesHas;
+    }
+
+    public void setNumPiecesTotal(int numPiecesTotal) {
+        this.numPiecesTotal = numPiecesTotal;
+    }
+
+    public void setNumPiecesHas(int numPiecesHas) {
+        this.numPiecesHas = numPiecesHas;
     }
 }

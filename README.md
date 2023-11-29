@@ -8,17 +8,21 @@ P2P file sharing software built for CNT4007 at the University of Florida.
 ## Contributors
 Group 35:
 - Kory Gauger (kory.gauger@ufl.edu)
-  - Contribution 1
+  - MessageHandler class (message generation)
   - Contribution 2
   - etc...
 - Kyeonghan Lee (klee4@ufl.edu)
-  - Contribution 1
+  - Common.java file
   - Contribution 2
   - etc...
 - Anand Mathi (anandmathi@ufl.edu)
-  - Contribution 1
-  - Contribution 2
-  - etc...
+  - ConfigParser class
+  - Logger class
+  - peerProcess class
+  - Input validation, environment cleanup, & initialization
+  - Client & Server classes
+  - Managing TCP connections
+  - Peer class
 
 ## Compilation & Running Instructions
 To compile, run the following command in p2p-file-sharing/src:

@@ -72,7 +72,7 @@ public class ConfigParser {
                     int port = Integer.parseInt(parts[2]);
                     int file = Integer.parseInt(parts[3]);
 
-                    Peer peer = new Peer(peerId, address, port, file == 1, null, false);
+                    Peer peer = new Peer(peerId, address, port, file == 1, null);
                     peers.add(peer);
                 }
             }

@@ -1,101 +1,80 @@
-// Provided resource from Canvas
-
-/*
-Client.java
-Class file for running the actual application
-Create sockets to connect peers
-sendMessage(<params>)
-Close connections properly
-Sample file provided to us
-
- */
-
 import java.net.*;
 import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
 import java.util.*;
 
-public class Client implements Runnable {
-    Socket requestSocket;           //socket connect to the server
-    ObjectOutputStream out;         //stream write to the socket
-    ObjectInputStream in;          //stream read from the socket
-    String message;                //message send to the server
-    String MESSAGE;                //capitalized message read from the server
+public class Client {
+    private final ArrayList<Peer> peers;
 
-//    private int numPreferredNeighbors;
-
-    Peer peer;
-    List<Peer> connectedPeerList;
-    List<Peer> fullPeerList;
-
-    public Client(Peer peer, List<Peer> fullPeerList) {
-        this.peer = peer;
-        this.fullPeerList = fullPeerList;
+    public Client(ArrayList<Peer> peers) {
+        this.peers = peers;
     }
 
-    @Override
-    public void run()
-    {
-        try{
-            //create a socket to connect to the server
-            requestSocket = new Socket("localhost", 8000);
-            System.out.println("Connected to localhost in port 8000");
-            //initialize inputStream and outputStream
-            out = new ObjectOutputStream(requestSocket.getOutputStream());
-            out.flush();
-            in = new ObjectInputStream(requestSocket.getInputStream());
-
-            //get Input from standard input
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-            while(true)
-            {
-                System.out.print("Hello, please input a sentence: ");
-                //read a sentence from the standard input
-                message = bufferedReader.readLine();
-                //Send the sentence to the server
-                sendMessage(message);
-                //Receive the upperCase sentence from the server
-                MESSAGE = (String)in.readObject();
-                //show the message to the user
-                System.out.println("Receive message: " + MESSAGE);
-            }
-        }
-        catch (ConnectException e) {
-            System.err.println("Connection refused. You need to initiate a server first.");
-        }
-        catch ( ClassNotFoundException e ) {
-            System.err.println("Class not found");
-        }
-        catch(UnknownHostException unknownHost){
-            System.err.println("You are trying to connect to an unknown host!");
-        }
-        catch(IOException ioException){
-            ioException.printStackTrace();
-        }
-        finally{
-            //Close connections
-            try{
-                in.close();
-                out.close();
-                requestSocket.close();
-            }
-            catch(IOException ioException){
-                ioException.printStackTrace();
-            }
-        }
-    }
-    //send a message to the output stream
-    void sendMessage(String msg)
-    {
-        try{
-            //stream write the message
-            out.writeObject(msg);
-            out.flush();
-        }
-        catch(IOException ioException){
-            ioException.printStackTrace();
+    // handles connections passed in thru constructor (all peers that come before it in config file)
+    public void startClient() throws IOException {
+        System.out.println("Started client!");
+        System.out.println(peers.size());
+        for (Peer peer : peers) {
+            connect(peer);
         }
     }
 
+    // secondary connections (all peers that come after it in config file) -- triggered by server accepting connection
+    // for secondary connections, just call this
+    // connections will time out after 5 seconds. if this isn't enough, increase the timeout
+    private void connect(Peer newPeer) {
+        System.out.println("Attempting connection to peer " + newPeer.getPeerId() + " at " + newPeer.getAddress() + ":" + newPeer.getPort());
+        try {
+            Socket clientSocket = new Socket();
+            clientSocket.connect(new InetSocketAddress(newPeer.getAddress(), newPeer.getPort()), 5000); // 5000 milliseconds timeout
+            new Handler(clientSocket).start();
+            System.out.println("Connected to " + newPeer.getPeerId());
+        } catch (IOException e) {
+            System.err.println("Connection error with " + newPeer.getPeerId() + ": " + e.getMessage());
+        }
+    }
+
+    private static class Handler extends Thread {
+        private final Socket connection;
+        private ObjectInputStream in;
+        private ObjectOutputStream out;
+
+        public Handler(Socket connection) {
+            this.connection = connection;
+        }
+
+        public void run() {
+            try {
+                out = new ObjectOutputStream(connection.getOutputStream());
+                out.flush();
+                in = new ObjectInputStream(connection.getInputStream());
+
+                // Your logic for handling communication with the server goes here
+                // Example:
+                sendMessage("Hello, server!");
+                String response = (String) in.readObject();
+                System.out.println("Server response: " + response);
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    in.close();
+                    out.close();
+                    connection.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void sendMessage(String msg) {
+            try {
+                out.writeObject(msg);
+                out.flush();
+                System.out.println("Sent message: " + msg);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
+

@@ -10,15 +10,10 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public class Log {
-    private final int peerId;
+    private static int peerId;
     private static final Logger logger = Logger.getLogger(Log.class.getName());
-//    private String address;
-//    private int port;
-//    private boolean file;
 
-//    private byte[] bitField;
-
-    private void log(String msg) {
+    private static synchronized void log(String msg) {
         // get time
         LocalDateTime time = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -38,7 +33,7 @@ public class Log {
     }
 
     public Log(int peerId) {
-        this.peerId = peerId;
+        Log.peerId = peerId;
         // initialize any other variables that stay constant like port, address, etc if needed
     }
 
