@@ -7,8 +7,7 @@ Dissect config files to extract relevant information for current peer
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ConfigParser {
     public static Common parseCommon(String fileName) {
@@ -59,32 +58,55 @@ public class ConfigParser {
 
         return cmnCfg;
     }
-    public static List<Peer> parsePeerInfo(String fileName) {
-        List<Peer> peers = new ArrayList<>();
+//    public static List<Peer> parsePeerInfo(String fileName) {
+//        List<Peer> peers = new ArrayList<>();
+//
+//        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                String[] parts = line.split(" ");
+//                if (parts.length >= 4) {
+//                    int peerId = Integer.parseInt(parts[0]);
+//                    String address = parts[1];
+//                    int port = Integer.parseInt(parts[2]);
+//                    int file = Integer.parseInt(parts[3]);
+//
+//                    Peer peer = new Peer(peerId, address, port, file == 1, null);
+//                    peers.add(peer);
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        // loop through and set peerLists?
+//        // probably not necessary
+//
+//        return peers;
+//    }
+public static LinkedHashMap<Integer, Peer> parsePeerInfo(String fileName) {
+    LinkedHashMap<Integer, Peer> peerMap = new LinkedHashMap<>();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(" ");
-                if (parts.length >= 4) {
-                    int peerId = Integer.parseInt(parts[0]);
-                    String address = parts[1];
-                    int port = Integer.parseInt(parts[2]);
-                    int file = Integer.parseInt(parts[3]);
+    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String[] parts = line.split(" ");
+            if (parts.length >= 4) {
+                int peerId = Integer.parseInt(parts[0]);
+                String address = parts[1];
+                int port = Integer.parseInt(parts[2]);
+                int file = Integer.parseInt(parts[3]);
 
-                    Peer peer = new Peer(peerId, address, port, file == 1, null);
-                    peers.add(peer);
-                }
+                Peer peer = new Peer(peerId, address, port, file == 1, null);
+                peerMap.put(peerId, peer);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
-        // loop through and set peerLists?
-        // probably not necessary
-
-        return peers;
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+
+    return peerMap;
+}
 
     public static class Common {
         private int numberOfPreferredNeighbors;

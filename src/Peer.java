@@ -7,7 +7,6 @@ public class Peer {
     private String address;
     private int port;
     private boolean file;
-    // operations/threads while using Peer to maintain info for other peers
 
     private BitSet bitField;
     private int numPiecesHas;
@@ -24,7 +23,6 @@ public class Peer {
     private Log log;
 
     List<Peer> connectedPeersList;
-    List<Peer> neighborsList;
 
     ConfigParser.Common cmnCfg;
 
@@ -34,7 +32,6 @@ public class Peer {
         this.port = port;
         this.file = file;
         this.connectedPeersList = connectedPeersList;
-        log = new Log(peerId);
     }
 
     public void startThreads() {
@@ -57,13 +54,14 @@ public class Peer {
         } else {
             numPiecesHas = 0;
         }
+        Log.setPeerId(peerId);
         startThreads();
     }
 
     public void loadCommonInfo() {
         // indices: 0 -> NumberOfPreferredNeighbors, 1 -> UnchokingInterval, 2 -> OptimisticUnchokingInterval,
         // 3 -> FileName, 4 -> FileSize, 5 -> PieceSize
-        cmnCfg = ConfigParser.parseCommon("config/project_config_file_small/Common.cfg");
+        cmnCfg = ConfigParser.parseCommon("config/project_config_file_local/Common.cfg");
         numPiecesTotal = (int)Math.ceil((double) cmnCfg.getFileSize() / cmnCfg.getPieceSize());
         this.bitField = new BitSet(numPiecesTotal);
     }
@@ -84,10 +82,6 @@ public class Peer {
         return this.file;
     }
 
-    public List<Peer> getNeighborsList() {
-        return this.neighborsList;
-    }
-
     public void setPeerId(int peerId) {
         this.peerId = peerId;
     }
@@ -106,14 +100,6 @@ public class Peer {
 
     public void setPeerList(List<Peer> connectedPeersList) {
         this.connectedPeersList = connectedPeersList;
-    }
-
-    public void setNeighborsList(List<Peer> neighborsList) {
-        this.neighborsList = neighborsList;
-    }
-
-    public void addNeighbor(Peer neighbor) {
-        neighborsList.add(neighbor);
     }
 
     public int getNumPiecesTotal() {

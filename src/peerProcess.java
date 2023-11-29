@@ -22,14 +22,15 @@ Should be relatively simple for now
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class peerProcess {
     private Server server;
     private Client client;
     private static int peerId;
-    private static ArrayList<Peer> tcpConList;
+    private int port;
+    private static Set<Integer> connections; // record of connections to avoid repetition
+    private static LinkedHashMap<Integer, Peer> peerMap; // map of peers, key = peerId value = peer object
 
     public static void main(String[] args) throws Exception {
         // input validation: ensure argument is a valid integer & length == 1
@@ -49,19 +50,31 @@ public class peerProcess {
     private void go() throws Exception {
         // get pertinent info from config file (address, port, hasfile) and create peer
         // wrap in try-catch block to verify environment setup later on
-        List<Peer> fullPeerList = ConfigParser.parsePeerInfo("config/project_config_file_small/PeerInfo.cfg");
-        tcpConList = new ArrayList<>();
+        peerMap = ConfigParser.parsePeerInfo("config/project_config_file_local/PeerInfo.cfg");
+//        List<Peer> fullPeerList = ConfigParser.parsePeerInfo("config/project_config_file_local/PeerInfo.cfg");
         Peer peer = null;
+        connections = new HashSet<>();
 
-        for (Peer curPeer : fullPeerList) {
-            if (curPeer.getPeerId() == peerId) {
-                peer = curPeer;
+        for (Map.Entry<Integer, Peer> entry : peerMap.entrySet()) {
+            if (entry.getKey() == peerId) {
+                peer = entry.getValue();
+                port = peer.getPort();
                 break;
             }
             else {
-                tcpConList.add(curPeer);
+                connections.add(entry.getKey());
             }
         }
+//        for (Peer curPeer : fullPeerList) {
+//            if (curPeer.getPeerId() == peerId) {
+//                peer = curPeer;
+//                port = peer.getPort();
+//                break;
+//            }
+//            else {
+//                initialConnections.add(curPeer.getPeerId());
+//            }
+//        }
         if (peer == null) {
             throw new Exception("Error: Input peerId not found in PeerInfo.cfg.");
         }
@@ -78,11 +91,10 @@ public class peerProcess {
         }
 
         // Manual Log class tests
-//        Log logger = new Log(peerId);
-//        logger.logTCPTo(5555);
-//        logger.logTCPFrom(5555);
-//        logger.logChangeOpUnchoked(2352);
-//        logger.logDownloadPiece(6969, 5, 5);
+//        Log.logTCPTo(5555);
+//        Log.logTCPFrom(5555);
+//        Log.logChangeOpUnchoked(2352);
+//        Log.logDownloadPiece(6969, 5, 5);
 
 
         // run Client & Server
@@ -93,9 +105,9 @@ public class peerProcess {
 //        }
     }
 
-    public void runThreads() throws InterruptedException {
-        server = new Server(6001, this);
-        client = new Client(tcpConList);
+    public void runThreads() {
+        server = new Server(port, this);
+        client = new Client(connections, peerMap, peerId);
         Thread serverThread = new Thread(() -> {
             try {
                 server.startServer();

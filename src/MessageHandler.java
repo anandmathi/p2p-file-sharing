@@ -145,4 +145,22 @@ public class MessageHandler {
         byte[] ret = combine.array();
         return ret;
     }
+
+    public static byte[] generateHandshakeMsg(int peerId) {
+        byte[] handshakeMsg = new byte[32]; // 18 (header) + 10 (zero bytes) + 4 (peer id)
+
+        // header + 10 zeros (first 28 bytes)
+        String header = "P2PFILESHARINGPROJ0000000000"; // 18-byte string
+        byte[] headerBytes = header.getBytes();
+        System.arraycopy(headerBytes, 0, handshakeMsg, 0, headerBytes.length);
+
+
+        // remaining 4 bytes, peerId
+        // could not figure out how to do this with bytes -- string conversion works for now i guess
+        String peerStr = String.valueOf(peerId);
+        byte[] peerBytes = peerStr.getBytes();
+        System.arraycopy(peerBytes, 0, handshakeMsg, 28, peerBytes.length);
+
+        return handshakeMsg;
+    }
 }

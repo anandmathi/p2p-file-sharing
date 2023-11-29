@@ -16,13 +16,13 @@ Group 35:
   - Contribution 2
   - etc...
 - Anand Mathi (anandmathi@ufl.edu)
-  - ConfigParser class
-  - Logger class
-  - peerProcess class
+  - ConfigParser class (reads data from config files)
+  - Logger class (logs events in peer's log file)
+  - peerProcess class (main method)
   - Input validation, environment cleanup, & initialization
-  - Client & Server classes
-  - Managing TCP connections
+  - Managing TCP connections in Client & Server classes
   - Peer class
+  - Handshake
 
 ## Compilation & Running Instructions
 To compile, run the following command in p2p-file-sharing/src:
