@@ -23,6 +23,7 @@ Group 35:
   - Managing TCP connections in Client & Server classes
   - Peer class
   - Handshake
+  - Bitfield
 
 ## Compilation & Running Instructions
 To compile, run the following command in p2p-file-sharing/src:

@@ -51,7 +51,6 @@ public class peerProcess {
         // get pertinent info from config file (address, port, hasfile) and create peer
         // wrap in try-catch block to verify environment setup later on
         peerMap = ConfigParser.parsePeerInfo("config/project_config_file_local/PeerInfo.cfg");
-//        List<Peer> fullPeerList = ConfigParser.parsePeerInfo("config/project_config_file_local/PeerInfo.cfg");
         Peer peer = null;
         connections = new HashSet<>();
 
@@ -65,20 +64,12 @@ public class peerProcess {
                 connections.add(entry.getKey());
             }
         }
-//        for (Peer curPeer : fullPeerList) {
-//            if (curPeer.getPeerId() == peerId) {
-//                peer = curPeer;
-//                port = peer.getPort();
-//                break;
-//            }
-//            else {
-//                initialConnections.add(curPeer.getPeerId());
-//            }
-//        }
+
         if (peer == null) {
             throw new Exception("Error: Input peerId not found in PeerInfo.cfg.");
         }
-        peer.initialize();
+
+        Log.setPeerId(peerId);
 
         // Clean up environment: delete previous log file and directory if they exist from previous runs
         File prevLog = new File("log_peer_" + peerId + ".log");
@@ -86,23 +77,17 @@ public class peerProcess {
         if (prevLog.exists()) {
             prevLog.delete();
         }
-        if (prevDir.exists()) {
+        if (prevDir.exists() && !peer.hasFile()) {
             deleteDirectory(prevDir);
         }
 
-        // Manual Log class tests
-//        Log.logTCPTo(5555);
-//        Log.logTCPFrom(5555);
-//        Log.logChangeOpUnchoked(2352);
-//        Log.logDownloadPiece(6969, 5, 5);
-
+        // make directory
+        File directory = new File("peer_" + peerId);
+        directory.mkdir();
+        peer.initialize();
 
         // run Client & Server
         runThreads();
-        // 1 server thread which accepts all connections, 1 client thread which connects to all peers
-//        for (int i = 0; i < tcpConList.size(); i++) {
-//            System.out.println(tcpConList.get(i).getPeerId());
-//        }
     }
 
     public void runThreads() {
@@ -135,9 +120,9 @@ public class peerProcess {
             if (files != null) {
                 for (File file : files) {
                     if (file.isDirectory()) {
-                        deleteDirectory(file); // Recursively delete subdirectories
+                        deleteDirectory(file); // recursively delete subdirectories
                     } else {
-                        file.delete(); // Delete files
+                        file.delete(); // delete files
                     }
                 }
             }

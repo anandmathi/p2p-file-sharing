@@ -1,4 +1,5 @@
 import java.nio.ByteBuffer;
+import java.util.BitSet;
 
 /*
 MessageHandler.java
@@ -94,7 +95,8 @@ public class MessageHandler {
         return ret;
     }
 
-    public static byte[] generateBitFieldMsg(byte[] bitfield) {
+    public static byte[] generateBitFieldMsg(BitSet bitField) {
+        byte[] bitfield = bitField.toByteArray();
         byte[] type = new byte[1];
         type[0] = 5;
 
@@ -108,6 +110,8 @@ public class MessageHandler {
         combine.put(bitfield);
 
         byte[] ret = combine.array();
+
+        System.out.println();
         return ret;
     }
 

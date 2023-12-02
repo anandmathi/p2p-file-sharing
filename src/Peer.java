@@ -1,5 +1,7 @@
+import java.io.IOException;
 import java.util.List;
 import java.util.BitSet;
+import java.io.File;
 
 public class Peer {
     // initialize peer data
@@ -11,20 +13,11 @@ public class Peer {
     private BitSet bitField;
     private int numPiecesHas;
 
-    // data from Common.cfg
-//    private int numPrefNeighbors;
+    ConfigParser.Common cmnCfg;
     private int numPiecesTotal;
-//    private int unchokingInterval;
-//    private int opUnchokingInterval;
-//    private String fileName;
-//    private int fileSize;
-//    private int pieceSize;
-
-    private Log log;
 
     List<Peer> connectedPeersList;
 
-    ConfigParser.Common cmnCfg;
 
     public Peer(int peerId, String address, int port, boolean file, List<Peer> connectedPeersList) {
         this.peerId = peerId;
@@ -32,17 +25,6 @@ public class Peer {
         this.port = port;
         this.file = file;
         this.connectedPeersList = connectedPeersList;
-    }
-
-    public void startThreads() {
-        for (int i = 0; i < cmnCfg.getNumberOfPreferredNeighbors(); i++) {
-//            Client client = new Client(this, null);
-//            SampleServer server = new SampleServer();
-//            Thread clientThread = new Thread(client);
-//            Thread serverThread = new Thread(server);
-//            clientThread.start();
-//            serverThread.start();
-        }
     }
 
     public void initialize() {
@@ -54,8 +36,10 @@ public class Peer {
         } else {
             numPiecesHas = 0;
         }
-        Log.setPeerId(peerId);
-        startThreads();
+//        Log.setPeerId(peerId);
+//        for (int i = 0; i < bitField.length(); i++) {
+//            System.out.print(bitField.get(i) ? "1" : "0");
+//        }
     }
 
     public void loadCommonInfo() {
@@ -64,6 +48,16 @@ public class Peer {
         cmnCfg = ConfigParser.parseCommon("config/project_config_file_local/Common.cfg");
         numPiecesTotal = (int)Math.ceil((double) cmnCfg.getFileSize() / cmnCfg.getPieceSize());
         this.bitField = new BitSet(numPiecesTotal);
+        File f = new File("peer_"+peerId+"/"+cmnCfg.getFileName());
+        if (!file) {
+            if (f.exists()) {
+                f.delete();
+            }
+            try {
+                f.createNewFile();
+            } catch (IOException ignored) {}
+        }
+
     }
 
     public int getPeerId() {
@@ -76,6 +70,10 @@ public class Peer {
 
     public int getPort() {
         return this.port;
+    }
+
+    public BitSet getBitField() {
+        return this.bitField;
     }
 
     public boolean hasFile() {
@@ -101,6 +99,8 @@ public class Peer {
     public void setPeerList(List<Peer> connectedPeersList) {
         this.connectedPeersList = connectedPeersList;
     }
+
+    public void setBitField(BitSet bitField) { this.bitField = bitField; }
 
     public int getNumPiecesTotal() {
         return numPiecesTotal;

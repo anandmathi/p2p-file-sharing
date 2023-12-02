@@ -98,6 +98,7 @@ public static LinkedHashMap<Integer, Peer> parsePeerInfo(String fileName) {
                 int file = Integer.parseInt(parts[3]);
 
                 Peer peer = new Peer(peerId, address, port, file == 1, null);
+                peer.initialize();
                 peerMap.put(peerId, peer);
             }
         }

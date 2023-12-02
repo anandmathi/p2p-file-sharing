@@ -21,6 +21,7 @@ public class Log {
             FileHandler fileHandler = new FileHandler("log_peer_" + peerId + ".log", true);
             fileHandler.setFormatter(new MyFormatter());
             logger.addHandler(fileHandler);
+            logger.setUseParentHandlers(false);
             // final formatting & log
             logger.log(Level.INFO, "[" + fmtTime + "]: " + msg);
             fileHandler.close();
@@ -80,15 +81,12 @@ public class Log {
     }
 
 
-    static class MyFormatter extends Formatter {
+    static class MyFormatter extends Formatter { // just to clean up the log file and omit date/time lines
         @Override
         public String format(LogRecord record) {
-            StringBuilder builder = new StringBuilder();
-            builder.append(record.getLevel() + ": ");
-            builder.append(formatMessage(record));
-            builder.append(System.lineSeparator());
-            // pre-Java7: builder.append(System.getProperty('line.separator'));
-            return builder.toString();
+            return record.getLevel() + ": " +
+                    formatMessage(record) +
+                    System.lineSeparator();
         }
     }
 }
