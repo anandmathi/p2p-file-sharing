@@ -94,6 +94,10 @@ public class Client {
         }
     }
 
+    public void updateUnchokedList(ArrayList<Integer> unchokedList) {
+        this.unchokedList = unchokedList;
+    }
+
     // secondary connections (all peers that come after it in config file, triggered by server)
     public void addConnection(int peerId) {
         Peer peer = peerMap.get(peerId);
@@ -103,6 +107,18 @@ public class Client {
 
     public boolean isConnected(int peerId) {
         return connections.containsKey(peerId);
+    }
+
+    public Map<Integer, Handler> getConnections() {
+        return connections;
+    }
+
+    public Map<Integer,Peer> getPeermap() {
+        return peerMap;
+    }
+
+    public ArrayList<Integer> getUnchokedList(){
+        return unchokedList;
     }
 
     // connections will time out after 5 seconds. if this isn't enough, increase the timeout
@@ -122,7 +138,7 @@ public class Client {
         }
     }
 
-    private static class Handler extends Thread {
+    public static class Handler extends Thread {
         private final Socket connection;
         private final int peerId;
         private final int connectedPeerId; // may not be necessary

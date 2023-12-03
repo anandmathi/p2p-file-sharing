@@ -3,6 +3,7 @@
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.*;
 
@@ -42,9 +43,9 @@ public class Log {
         log("Peer " + peerId + " is connected from Peer " + peerId2 + ".");
     }
 
-    public static void logChangePrefNeighbors(List<Integer> neighborsList) {
+    public static void logChangePrefNeighbors(ArrayList<Integer> neighborsList) {
         // may need to convert neighborsList to comma-separated string, not sure how Java handles printing lists
-        log("Peer " + peerId + " has the preferred neighbors " + "<neighborsList>" + ".");
+        log("Peer " + peerId + " has the preferred neighbors " + neighborsList + ".");
     }
 
     public static void logChangeOpUnchoked(int peerId2) {
