@@ -13,8 +13,8 @@ Group 35:
   - etc...
 - Kyeonghan Lee (klee4@ufl.edu)
   - Common.java file
-  - Contribution 2
-  - etc...
+  - ConfigParser.java file
+  - Debugging
 - Anand Mathi (anandmathi@ufl.edu)
   - ConfigParser class (reads data from config files)
   - Logger class (logs events in peer's log file)
