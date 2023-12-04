@@ -10,7 +10,7 @@ to distribute the data to all peers in the network.
 Group 35:
 - Kory Gauger (kory.gauger@ufl.edu)
   - MessageHandler class (message generation)
-  - Contribution 2
+  - ChokeHandler class 
   - etc...
 - Kyeonghan Lee (klee4@ufl.edu)
   - Common.java file
