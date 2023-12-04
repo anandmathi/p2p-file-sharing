@@ -6,7 +6,7 @@ To run, run the following command in p2p-file-sharing/src:
 java peerProcess <peerId>
 Ex. java peerProcess 1001
 
-peerId must match a peer in p2p-file-sharing/src/config/PeerInfo.cfg
+peerId must match a peer in PeerInfo.cfg
  */
 
 /*
@@ -50,7 +50,7 @@ public class peerProcess {
     private void go() throws Exception {
         // get pertinent info from config file (address, port, hasfile) and create peer
         // wrap in try-catch block to verify environment setup later on
-        peerMap = ConfigParser.parsePeerInfo("config/project_config_file_local/PeerInfo.cfg");
+        peerMap = ConfigParser.parsePeerInfo("PeerInfo.cfg");
         Peer peer = null;
         connections = new HashSet<>();
 
@@ -69,30 +69,38 @@ public class peerProcess {
             throw new Exception("Error: Input peerId not found in PeerInfo.cfg.");
         }
 
+
+        int numCompleted = 0;
+        for (Peer p : peerMap.values()) {
+            if (p.hasFile()) {
+                numCompleted++;
+            }
+        }
+
         Log.setPeerId(peerId);
 
         // Clean up environment: delete previous log file and directory if they exist from previous runs
         File prevLog = new File("log_peer_" + peerId + ".log");
-        File prevDir = new File("peer_" + peerId);
+        File dir = new File("peer_" + peerId);
         if (prevLog.exists()) {
             prevLog.delete();
         }
-        if (prevDir.exists() && !peer.hasFile()) {
-            deleteDirectory(prevDir);
-        }
+//        if (prevDir.exists() && !peer.hasFile()) {
+//            deleteDirectory(prevDir);
+//        }
 
         // make directory
         File directory = new File("peer_" + peerId);
-        directory.mkdir();
+        if (!dir.exists()) directory.mkdir();
         peer.initialize();
 
         // run Client & Server
-        runThreads();
+        runThreads(numCompleted);
     }
 
-    public void runThreads() {
+    public void runThreads(int numCompleted) {
         server = new Server(port, this);
-        client = new Client(connections, peerMap, peerId);
+        client = new Client(connections, peerMap, peerId, this, numCompleted);
         Thread serverThread = new Thread(() -> {
             try {
                 server.startServer();
@@ -114,23 +122,25 @@ public class peerProcess {
 //        clientThread.interrupt();
     }
 
-    public static void deleteDirectory(File directory) {
-        if (directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        deleteDirectory(file); // recursively delete subdirectories
-                    } else {
-                        file.delete(); // delete files
-                    }
-                }
-            }
-        }
-        directory.delete();
-    }
+//    public static void deleteDirectory(File directory) {
+//        if (directory.isDirectory()) {
+//            File[] files = directory.listFiles();
+//            if (files != null) {
+//                for (File file : files) {
+//                    if (file.isDirectory()) {
+//                        deleteDirectory(file); // recursively delete subdirectories
+//                    } else {
+//                        file.delete(); // delete files
+//                    }
+//                }
+//            }
+//        }
+//        directory.delete();
+//    }
 
     public Client getClient() {
         return client;
     }
+
+    public Server getServer() { return server; }
 }

@@ -60,14 +60,12 @@ public class Server {
         ServerSocket listener = new ServerSocket(hostPort);
         listener.setSoTimeout(1000); // set a timeout for accept()
 
-        int clientNum = 1;
         try {
             while(!exit) {
                 try {
                     Socket clientSocket = listener.accept(); // This can throw SocketTimeoutException
                     if (clientSocket != null) {
                         new Handler(clientSocket).start();
-                        clientNum++;
                     }
                 } catch (SocketTimeoutException ignored) {
                     // nothing needed here -- just means that no client tried to connect during the timeout
@@ -97,108 +95,160 @@ public class Server {
 
         public Handler(Socket connection) {
             this.connection = connection;
+            try {
+                in = connection.getInputStream();
+            }
+            catch (IOException e) {
+                System.out.println("Could not get input stream from connection");
+            }
         }
 
         public void run() {
-            try{
-                //initialize Input and Output streams
-                out = connection.getOutputStream();
-                out.flush();
-                in = connection.getInputStream();
-                while(true)
-                {
-                    byte[] buffer = new byte[1024];
-                    int bytesRead = in.read(buffer); // Read bytes into buffer
+            synchronized (in) {
+                try {
+                    //initialize Input and Output streams
+//                    out = connection.getOutputStream();
+//                    out.flush();
+                    while (true) {
+                        if (!handshook) {
+                            byte[] buffer = new byte[32];
+                            int bytesRead = in.read(buffer);
+                            if (bytesRead == -1) {
+                                // End of stream, exit loop
+                                System.out.println("exit");
+                                break;
+                            }
+                            String message = new String(buffer, 0, bytesRead);
 
-                    if (bytesRead == -1) {
-                        // End of stream, exit loop
-                        break;
-                    }
-                    //receive the message sent from the client
-                    String message = new String(buffer, 0, bytesRead);
-                    //show the message to the user
-//                    System.out.println("Received message: " + message);
-
-//                    for (byte b : buffer) {
-//                        System.out.print(b & 0xFF); // Print the byte as an unsigned integer
-//                        System.out.print(" ");
-//                    }
-//                    System.out.println("buffer at 5 is " + (buffer[4]));
-
-                    // MESSAGE HANDLING
-                    // eventually we should move this to MessageHandler but this is fine for now
-                    if (!handshook) {
-                        // verify first 28 bytes
-                        if (!message.startsWith("P2PFILESHARINGPROJ0000000000")) {
-                            throw new Exception("Invalid message");
+                            // MESSAGE HANDLING
+                            // eventually we should move this to MessageHandler but this is fine for now
+                                // verify first 28 bytes
+                                if (!message.startsWith("P2PFILESHARINGPROJ0000000000")) {
+                                    System.out.println(message);
+                                    throw new Exception("Invalid message");
+                                }
+                                // update this thread's connectedPeerId
+                                connectedPeerId = Integer.parseInt(message.substring(28, 32));
+//                                System.out.println("Received 'handshake' from: " + connectedPeerId);
+                                handshook = true;
+                                Log.logTCPFrom(connectedPeerId);
+                                // now, establish outbound connection
+                                if (!proc.getClient().isConnected(connectedPeerId)) {
+                                    proc.getClient().addConnection(connectedPeerId);
+                                }
+                                proc.getClient().sendBitfield(connectedPeerId);
+                                continue;
                         }
-                        // update this thread's connectedPeerId
-                        connectedPeerId = Integer.parseInt(message.substring(28));
-                        System.out.println("Received 'handshake' from: " + connectedPeerId);
-                        handshook = true;
-                        Log.logTCPFrom(connectedPeerId);
-                        // now, establish outbound connection
-                        if (!proc.getClient().isConnected(connectedPeerId)) {
-                            proc.getClient().addConnection(connectedPeerId);
+                        byte[] lengthBytes = new byte[4];
+                        int bytesRead = in.read(lengthBytes);
+                        if (bytesRead == -1) {
+                            // End of stream, exit loop
+                            System.out.println("exit");
+                            break;
                         }
-                        proc.getClient().sendBitfield(connectedPeerId);
-                        continue;
+                        int msgLength = ByteBuffer.wrap(lengthBytes).getInt();
+                        byte[] buffer = new byte[msgLength];
+//                        byte[] buffer = new byte[190050];
+//                    byte[] length = new byte[4];
+//                    int len = in.read(buffer); // Read bytes into buffer
+                        //receive the message sent from the client
+                        bytesRead = in.read(buffer); // Read the rest of the message into the buffer
+
+                        if (bytesRead == -1) {
+                            // End of stream, exit loop
+                            System.out.println("exit");
+                            break;
+                        }
+//                        System.out.println("len " + msgLength);
+//                        System.out.println("bytes " + bytesRead);
+                        // get message length
+//                        int msgLength = ByteBuffer.wrap(buffer, 0, 4).getInt();
+//                        System.out.print("rec ");
+//                        for (int i = 0; i < 4; i++) {
+//                            System.out.print(ret[i] + " ");
+//                        }
+//                        System.out.println();
+                        switch (buffer[0]) {
+                            case 0:
+                                // choke
+//                                System.out.println("Received 'choke' from: " + connectedPeerId);
+                                Log.logChokedBy(connectedPeerId);
+                                proc.getClient().updateChokedByList(true, connectedPeerId);
+                                proc.getClient().addDownBytes(msgLength, connectedPeerId);
+                                break;
+                            case 1:
+                                // unchoke
+//                                System.out.println("Received 'unchoke' from: " + connectedPeerId);
+                                Log.logUnchokedBy(connectedPeerId);
+                                proc.getClient().updateChokedByList(false, connectedPeerId);
+                                proc.getClient().addDownBytes(msgLength, connectedPeerId);
+                                break;
+                            case 2:
+                                // interested
+//                                System.out.println("Received 'interested' from: " + connectedPeerId);
+                                Log.logInterestedFrom(connectedPeerId);
+                                proc.getClient().updateInterest(true, connectedPeerId);
+                                proc.getClient().addDownBytes(msgLength, connectedPeerId);
+                                break;
+                            case 3:
+                                // not interested
+//                                System.out.println("Received 'not interested' from: " + connectedPeerId);
+                                Log.logNotInterestedFrom(connectedPeerId);
+                                proc.getClient().updateInterest(false, connectedPeerId);
+                                proc.getClient().addDownBytes(msgLength, connectedPeerId);
+                                break;
+                            case 4:
+                                // have
+//                                System.out.println("Received 'have' from: " + connectedPeerId);
+                                Log.logHaveMsg(connectedPeerId, ByteBuffer.wrap(buffer, 1, 4).getInt());
+                                proc.getClient().updateHave(ByteBuffer.wrap(buffer, 1, 4).getInt(), connectedPeerId);
+                                proc.getClient().addDownBytes(msgLength, connectedPeerId);
+                                break;
+                            case 5:
+                                // bitfield
+//                                System.out.println("Received 'bitfield' from: " + connectedPeerId);
+                                proc.getClient().updateBitfield(Arrays.copyOfRange(buffer, 1, msgLength - 1), connectedPeerId);
+                                proc.getClient().addDownBytes(msgLength, connectedPeerId);
+                                break;
+                            case 6:
+                                // request
+//                                System.out.println("Received 'request' from: " + connectedPeerId);
+                                proc.getClient().recRequest(connectedPeerId, ByteBuffer.wrap(buffer, 1, 4).getInt());
+                                proc.getClient().addDownBytes(msgLength, connectedPeerId);
+                                break;
+                            case 7:
+                                // piece
+//                                System.out.println("Received 'piece' from: " + connectedPeerId);
+                                // now write the data into local file
+                                if (proc.getClient().hasPiece(ByteBuffer.wrap(buffer, 1, 4).getInt())) {
+                                    break;
+                                }
+                                synchronized (Client.fileLock) {
+                                    int peerId = proc.getClient().getPeerId();
+                                    try (RandomAccessFile file = new RandomAccessFile("peer_" + peerId + "/" + proc.getClient().getPeermap().get(peerId).getCmnCfg().getFileName(), "rw")) {
+                                        file.setLength(proc.getClient().getPeermap().get(peerId).getCmnCfg().getFileSize());
+                                        file.seek((long) proc.getClient().getPeermap().get(peerId).getCmnCfg().getPieceSize() * ByteBuffer.wrap(buffer, 1, 4).getInt());
+                                        file.write(buffer, 5, msgLength - 5);
+//                                        System.out.println("reached");
+                                        proc.getClient().recPiece(ByteBuffer.wrap(buffer, 1, 4).getInt(), connectedPeerId);
+                                        proc.getClient().addDownBytes(msgLength, connectedPeerId);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                // calculate the offset by pieceSize * pieceIndex, then write the data from buffer[9] to buffer[msgLength-5]
+                                // important: multiple threads, so needs to be synchronized
+                                break;
+                            default:
+                                throw new Exception("Invalid message 2");
+                        }
+                        // switch statement for each message type
                     }
-                    // get message length
-                    int msgLength = ByteBuffer.wrap(buffer, 0, 4).getInt();
-                    switch(buffer[4]) {
-                        case 0:
-                            // choke
-                            System.out.println("Received 'choke' from: " + connectedPeerId);
-                            proc.getClient().updateChokedByList(true, connectedPeerId);
-                            break;
-                        case 1:
-                            // unchoke
-                            System.out.println("Received 'unchoke' from: " + connectedPeerId);
-                            proc.getClient().updateChokedByList(false, connectedPeerId);
-                            break;
-                        case 2:
-                            // interested
-                            System.out.println("Received 'interested' from: " + connectedPeerId);
-                            proc.getClient().updateInterest(true, connectedPeerId);
-                            break;
-                        case 3:
-                            // not interested
-                            System.out.println("Received 'not interested' from: " + connectedPeerId);
-                            proc.getClient().updateInterest(false, connectedPeerId);
-                            break;
-                        case 4:
-                            // have
-                            System.out.println("Received 'have' from: " + connectedPeerId);
-                            break;
-                        case 5:
-                            // bitfield
-                            System.out.println("Received 'bitfield' from: " + connectedPeerId);
-                            proc.getClient().updateBitfield(Arrays.copyOfRange(buffer, 5, msgLength-1), connectedPeerId);
-                            break;
-                        case 6:
-                            // request
-                            System.out.println("Received 'request' from: " + connectedPeerId);
-                            proc.getClient().recRequest(connectedPeerId, ByteBuffer.wrap(buffer, 5, 4).getInt());
-                            break;
-                        case 7:
-                            // piece
-                            System.out.println("Received 'piece' from: " + connectedPeerId);
-                            // now write the data into local file
-                            // calculate the offset by pieceSize * pieceIndex, then write the data from buffer[9] to buffer[msgLength-5]
-                            // important: multiple threads, so needs to be synchronized
-                            proc.getClient().recPiece(ByteBuffer.wrap(buffer, 5, 4).getInt());
-                            break;
-                        default:
-                            throw new Exception("Invalid message 2");
-                    }
-                    // switch statement for each message type
+                } catch (IOException ioException) {
+                    System.out.println("Disconnect with Client " + connectedPeerId);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            }
-            catch(IOException ioException){
-                System.out.println("Disconnect with Client " + connectedPeerId);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
 

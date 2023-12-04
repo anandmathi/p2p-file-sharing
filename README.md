@@ -9,8 +9,7 @@ P2P file sharing software built for CNT4007 at the University of Florida.
 Group 35:
 - Kory Gauger (kory.gauger@ufl.edu)
   - MessageHandler class (message generation)
-  - Contribution 2
-  - etc...
+  - ChokeHandler class
 - Kyeonghan Lee (klee4@ufl.edu)
   - Common.java file
   - ConfigParser.java file
@@ -23,12 +22,15 @@ Group 35:
   - Managing TCP connections in Client & Server classes
   - Peer class
   - Handshake
+  - Message processing and sending
+  - Client & Server classes
   - Bitfield
+  - Threading for ChokeHandler
 
 ## Compilation & Running Instructions
 To compile, run the following command in p2p-file-sharing/src:
 
-`javac ChokeHandler.java MessageHandler.java Peer.java Client.java Log.java Server.java peerProcess.java Common.java`
+`javac ChokeHandler.java MessageHandler.java Peer.java Client.java Log.java Server.java peerProcess.java`
 
 To run, run the following command in p2p-file-sharing/src:
 

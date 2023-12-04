@@ -72,6 +72,11 @@ public class MessageHandler {
         combine.put(length);
         combine.put(type);
         byte[] ret = combine.array();
+//        System.out.print("sent ");
+//        for (byte b : ret) {
+//            System.out.print(b + " ");
+//        }
+//        System.out.println();
 
         return ret;
     }
@@ -80,18 +85,24 @@ public class MessageHandler {
         byte[] type = new byte[1];
         type[0] = 4;
 
-        byte[] id = ByteBuffer.allocate(4).putInt(1).array();
+        byte[] id = ByteBuffer.allocate(4).putInt(index).array();
 
         byte[] length = ByteBuffer.allocate(4).putInt(5).array();
 
         
-        byte[] size = new byte[11];
+        byte[] size = new byte[9];
         ByteBuffer combine = ByteBuffer.wrap(size);
         combine.put(length);
         combine.put(type);
         combine.put(id);
         byte[] ret = combine.array();
-        
+
+//        System.out.print("sent ");
+//        for (byte b : ret) {
+//            System.out.print(b + " ");
+//        }
+//        System.out.println();
+
         return ret;
     }
 
@@ -111,7 +122,11 @@ public class MessageHandler {
 
         byte[] ret = combine.array();
 
-        System.out.println();
+//        System.out.print("sent ");
+//        for (byte b : ret) {
+//            System.out.print(b + " ");
+//        }
+//        System.out.println();
         return ret;
     }
 
@@ -122,13 +137,18 @@ public class MessageHandler {
         byte[] piece = ByteBuffer.allocate(4).putInt(index).array();
         byte[] length = ByteBuffer.allocate(4).putInt(1 + piece.length).array();
 
-        byte[] size = new byte[11];
+        byte[] size = new byte[9];
         ByteBuffer combine = ByteBuffer.wrap(size);
         combine.put(length);
         combine.put(type);
         combine.put(piece);
 
         byte[] ret = combine.array();
+//        System.out.print("sent ");
+//        for (byte b : ret) {
+//            System.out.print(b + " ");
+//        }
+//        System.out.println();
         return ret;
     }
     
@@ -136,17 +156,30 @@ public class MessageHandler {
         byte[] type = new byte[1];
         type[0] = 7;
 
+        // 4 for length
+        // 1 for type
+        // 4 for piece index
+        // payload.size pieceSize for rest of payload
+
         byte[] piece = ByteBuffer.allocate(4).putInt(index).array();
         byte[] length = ByteBuffer.allocate(4).putInt(1 + piece.length + payload.length).array();
 
         byte[] size = new byte[11];
-        ByteBuffer combine = ByteBuffer.wrap(size);
+        ByteBuffer combine = ByteBuffer.allocate(length.length + type.length + piece.length + payload.length);
         combine.put(length);
         combine.put(type);
         combine.put(piece);
         combine.put(payload);
 
+//        System.out.println("sent length: " + (payload.length + length.length + piece.length + type.length));
+
         byte[] ret = combine.array();
+
+//        System.out.print("sent ");
+//        for (int i = 0; i < length.length+type.length+piece.length; i++) {
+//            System.out.print(ret[i] + " ");
+//        }
+//        System.out.println();
         return ret;
     }
 

@@ -16,6 +16,8 @@ public class Peer {
     ConfigParser.Common cmnCfg;
     private int numPiecesTotal;
 
+    private int downloadedBytes = 0;
+
     List<Peer> connectedPeersList;
 
 
@@ -33,6 +35,9 @@ public class Peer {
         if (file) {
             numPiecesHas = numPiecesTotal;
             bitField.set(0, numPiecesTotal);
+//            System.out.print("num has" + numPiecesHas);
+//            System.out.print("num total" + numPiecesTotal);
+
         } else {
             numPiecesHas = 0;
         }
@@ -45,7 +50,7 @@ public class Peer {
     public void loadCommonInfo() {
         // indices: 0 -> NumberOfPreferredNeighbors, 1 -> UnchokingInterval, 2 -> OptimisticUnchokingInterval,
         // 3 -> FileName, 4 -> FileSize, 5 -> PieceSize
-        cmnCfg = ConfigParser.parseCommon("config/project_config_file_local/Common.cfg");
+        cmnCfg = ConfigParser.parseCommon("Common.cfg");
         numPiecesTotal = (int)Math.ceil((double) cmnCfg.getFileSize() / cmnCfg.getPieceSize());
         this.bitField = new BitSet(numPiecesTotal);
         File f = new File("peer_"+peerId+"/"+cmnCfg.getFileName());
@@ -76,8 +81,20 @@ public class Peer {
         return this.bitField;
     }
 
+    public void setDownloadedBytes(int bytes) {
+        this.downloadedBytes=bytes;
+    }
+
+    public int getDownloadedBytes() {
+        return this.downloadedBytes;
+    }
+
     public boolean hasFile() {
         return this.file;
+    }
+
+    public ConfigParser.Common getCmnCfg() {
+        return this.cmnCfg;
     }
 
     public void setPeerId(int peerId) {
