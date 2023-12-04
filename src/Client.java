@@ -305,7 +305,7 @@ public class Client {
 
     // connections will time out after 5 seconds. if this isn't enough, increase the timeout
     private Handler connect(Peer newPeer) {
-        System.out.println("Attempting connection to peer " + newPeer.getPeerId() + " at " + newPeer.getAddress() + ":" + newPeer.getPort());
+        System.out.println("Attempting connection to peer " + newPeer.getPeerId());
         try {
             Socket clientSocket = new Socket();
             clientSocket.connect(new InetSocketAddress(newPeer.getAddress(), newPeer.getPort()), 5000); // 5000 milliseconds timeout
@@ -396,7 +396,7 @@ public class Client {
                     out.write(msg);
                     out.flush();
 //                    System.out.println("Sent message: " + new String(msg, 0, msg.length));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
