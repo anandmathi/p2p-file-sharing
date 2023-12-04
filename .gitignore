@@ -2,5 +2,4 @@ out
 .DS_Store
 *.class
 .idea
-*.log
 peer_*
