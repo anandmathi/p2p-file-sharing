@@ -14,7 +14,7 @@ Group 35:
 - Kory Gauger (kory.gauger@ufl.edu)
   - MessageHandler class (message generation)
   - ChokeHandler class 
-  - etc...
+  - Debugging
 - Kyeonghan Lee (klee4@ufl.edu)
   - Common.java file
   - ConfigParser.java file
