@@ -1,7 +1,8 @@
 # P2P File Sharing
 
 ## Overview
-P2P file sharing software built for CNT4007 at the University of Florida.
+P2P file sharing software. Peers share handshake and bitfield messages with each other when a connection is formed. After, the peers use choke, unchoke, request, have, piece, interested, and not interested messages
+to distribute the data to all peers in the network. 
 
 [Demo Video]()
 
